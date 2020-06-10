@@ -157,13 +157,10 @@ def fill_address(df, address, traveltime):
     """
     return_value = None
     if address not in address_values:
-        # print('NAN')
         traveltime_num = float(traveltime)
         if traveltime_num <= 2:
-            # print('RU')
             return_value = 'U'
         elif traveltime_num > 2:
-            # print('RR')
             return_value = 'R'
         else:
             return_value = df['address'].mode()[0]
