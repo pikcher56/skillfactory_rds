@@ -173,6 +173,13 @@ famsize_values = ["GT3", "LE3"]
 
 
 def fill_famsize(df, famsize, Pstatus):
+    """
+    Fill NaN values for column famszie
+    :param df:
+    :param famsize:
+    :param Pstatus:
+    :return:
+    """
     return_value = None
     # print(famsize)
     if famsize not in famsize_values:
