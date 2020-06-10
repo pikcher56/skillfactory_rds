@@ -108,9 +108,7 @@ def get_stat_dif(df, column):
     :param column:
     :return:
     """
-    # cols = df.loc[:, column].value_counts().index[:]
     cols = df.loc[:, column].value_counts().index
-    # print(cols)
     combinations_all = list(combinations(cols, 2))
     for comb in combinations_all:
         if ttest_ind(df.loc[df.loc[:, column] == comb[0], 'score'],
@@ -226,10 +224,13 @@ def fill_fedu(row):
     """
     return_value = None
     if row['Fedu'] not in fedu_values:
-        if row['Medu'] == 4.0:
-            return_value = 3.0
+        if row['Fjob'] == 'teacher':
+            return_value = 4.0
         else:
-            return_value = row['Medu']
+            if row['Medu'] == 4.0:
+                return_value = 3.0
+            else:
+                return_value = row['Medu']
     else:
         return_value = row['Fedu']
     return return_value

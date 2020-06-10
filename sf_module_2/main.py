@@ -63,7 +63,10 @@ show_column_info(df, 'Pstatus')
 df['traveltime'] = df.apply(lambda x: fill_traveltime(x), axis=1)
 show_column_info(df, 'traveltime')
 
+display(df[df['Fedu'].isnull()])
 
+
+display(df.groupby(['Fjob', 'Fedu']).counter.sum())
 
 
 # df['famsize'] = df['famsize'].apply(convert_to_value)
@@ -110,6 +113,9 @@ show_column_info(df, 'traveltime')
 # df.groupby(['address', 'school', 'age']).traveltime.mean().hist()
 
 # sns.pairplot(df, kind='reg')
+
+
+
 
 
 # show_box_plot(df, 'school', 'age')
