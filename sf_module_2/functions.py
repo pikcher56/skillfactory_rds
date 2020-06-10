@@ -4,6 +4,7 @@ from itertools import combinations
 from scipy.stats import ttest_ind
 import seaborn as sns
 import pandas as pd
+import random
 
 
 # sns.set(style="darkgrid")
@@ -101,6 +102,12 @@ def show_iqr_histogram(df, column):
 
 
 def get_stat_dif(df, column):
+    """
+    Student test
+    :param df:
+    :param column:
+    :return:
+    """
     # cols = df.loc[:, column].value_counts().index[:]
     cols = df.loc[:, column].value_counts().index
     # print(cols)
@@ -114,6 +121,11 @@ def get_stat_dif(df, column):
 
 
 def convert_to_value(value):
+    """
+    Change str values to int
+    :param value:
+    :return:
+    """
     if pd.isnull(value):
         return value
     if value == 'LE3':
@@ -137,8 +149,15 @@ def convert_to_value(value):
 address_values = ['U', 'R']
 
 
-def fill_address(address, traveltime):
-    return_value = ''
+def fill_address(df, address, traveltime):
+    """
+    Fill Nan values for column address
+    :param df:
+    :param address:
+    :param traveltime:
+    :return:
+    """
+    return_value = None
     if address not in address_values:
         # print('NAN')
         traveltime_num = float(traveltime)
@@ -149,10 +168,100 @@ def fill_address(address, traveltime):
             # print('RR')
             return_value = 'R'
         else:
-            return_value = 'U'
+            return_value = df['address'].mode()[0]
     else:
         return_value = address
     return return_value
+
+
+famsize_values = ["GT3", "LE3"]
+
+
+def fill_famsize(df, famsize, Pstatus):
+    return_value = None
+    # print(famsize)
+    if famsize not in famsize_values:
+        if Pstatus == 'T':
+            return_value = 'GT3'
+        elif Pstatus == 'A':
+            return_value = 'LE3'
+        else:
+            return_value = df['famsize'].mode()[0]
+    else:
+        return_value = famsize
+    return return_value
+
+
+pstatus_values = ['A', 'T']
+
+
+def fill_pstatus(row):
+    """
+    Fill NaN values ftor column pstatus
+    :param row:
+    :return:
+    """
+    return_value = None
+    if row['Pstatus'] not in pstatus_values:
+        if row['famsize'] == 'GT3':
+            return_value = 'T'
+        elif row['famsize'] == 'LE3':
+            return_value = 'A'
+        else:
+            return_value = row['Pstatus']
+    else:
+        return_value = row['Pstatus']
+    return return_value
+
+
+fedu_values = [1.0, 2.0, 3.0, 4.0]
+
+
+def fill_fedu(row):
+    """
+    Fill NaN values for column Fedu
+    :param df:
+    :param index:
+    :return:
+    """
+    return_value = None
+    if row['Fedu'] not in fedu_values:
+        if row['Medu'] == 4.0:
+            return_value = 3.0
+        else:
+            return_value = row['Medu']
+    else:
+        return_value = row['Fedu']
+    return return_value
+
+
+traveltime_values = [1.0, 2.0, 3.0, 4.0]
+
+
+def fill_traveltime(row):
+    """
+    Fill NaN values for column traveltime
+    :param row:
+    :return:
+    """
+    return_value = None
+    if row['traveltime'] not in traveltime_values:
+        if row['address'] == 'U':
+            if row['reason'] == 'home':
+                return_value = 1.0
+            else:
+                return_value = 2.0
+        elif row['address'] == 'R':
+            if row['reason'] == 'home':
+                return_value = 3.0
+            else:
+                return_value = 4.0
+    else:
+        return_value = row['traveltime']
+    return return_value
+
+
+
 
 
 

@@ -7,7 +7,8 @@ from itertools import combinations
 from scipy.stats import ttest_ind
 import math
 
-from functions import show_frame_info, show_column_info, show_box_plot, convert_to_value, get_stat_dif, fill_address
+from functions import show_frame_info, show_column_info, show_box_plot, convert_to_value, get_stat_dif, fill_address, \
+    fill_famsize, fill_fedu, fill_traveltime, fill_pstatus
 
 # show more rows
 pd.set_option('display.max_rows', 200)
@@ -24,11 +25,44 @@ df['counter'] = 1
 # show_frame_info(df)
 
 
-show_column_info(df, 'address')
-# df.loc[df['address'].isnull() & (df['traveltime'] == 1.0), 'address'].fillna('U', inplace=True)
-# df['adr'] = df.apply(lambda x: 'U' if x['address'] == 'NaN' and x.traveltime == 1 else 'R', axis=1)
-df['address'] = df.apply(lambda x: fill_address(x['address'], x['traveltime']), axis=1)
-show_column_info(df, 'address')
+### address
+# show_column_info(df, 'address')
+# # df.loc[df['address'].isnull() & (df['traveltime'] == 1.0), 'address'].fillna('U', inplace=True)
+# # df['adr'] = df.apply(lambda x: 'U' if x['address'] == 'NaN' and x.traveltime == 1 else 'R', axis=1)
+#
+# df['address'] = df.apply(lambda x: fill_address(df, x['address'], x['traveltime']), axis=1)
+# #
+df['address'] = df['address'].fillna(df['address'].mode()[0])
+# show_column_info(df, 'address')
+
+# ## famsize
+# show_column_info(df, 'famsize')
+df['famsize'] = df.apply(lambda x: fill_famsize(df, x['famsize'], x['Pstatus']), axis=1)
+show_column_info(df, 'famsize')
+
+
+# # Medu
+# df['Medu'] = df['Medu'].fillna(df['Medu'].median())
+# show_column_info(df, 'Medu')
+
+
+# # Fedu
+# df['Fedu'] = df.apply(lambda x: fill_fedu(x), axis=1)
+# show_column_info(df, 'Fedu')
+
+
+# # Reason
+# df['reason'] = df.apply(lambda x: 'home' if x['traveltime'] == 1.0 else x['reason'], axis=1)
+# show_column_info(df, 'reason')
+
+# Pstatus
+df['Pstatus'] = df.apply(lambda x: fill_pstatus(x), axis=1)
+show_column_info(df, 'Pstatus')
+
+# Traveltime
+df['traveltime'] = df.apply(lambda x: fill_traveltime(x), axis=1)
+show_column_info(df, 'traveltime')
+
 
 
 
