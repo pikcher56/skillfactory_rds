@@ -1,0 +1,159 @@
+from IPython.display import display
+import matplotlib.pyplot as plt
+from itertools import combinations
+from scipy.stats import ttest_ind
+import seaborn as sns
+import pandas as pd
+
+
+# sns.set(style="darkgrid")
+
+
+def show_frame_info(df):
+    """
+    Show detailed info of DataFrame
+    :param df: DataFrame
+    :return: void
+    """
+    # display(df.info())
+    display(df.head())
+    print("Dataset info")
+    display(df.info())
+
+    print(f"Rows amount in dataset - {df.shape[0]}")
+    print(f"Columns amount in dataset - {df.shape[1]}")
+    print()
+    print("Ho many passes(Empty values) in dataset")
+    print(df.isnull().sum())
+
+
+def show_column_info(df, column, show_value_counts=True, bins=10):
+    """
+    Show detailed info of column in DataFrame
+    :param bins: Parameter for method df[column].hist()
+    :param show_value_counts: Show or not value_counts table
+    :param df: DataFrame
+    :param column: column from DataFrame
+    :return:
+    """
+    column_types = {
+        'type1': ['object'],
+        'type2': ['int64', 'float64']
+    }
+    if column in df.columns:
+        print(f"INFO FOR COLUMN: {column}")
+        print()
+        column_type = df[column].dtype
+        print(f"Column type: {column_type}")
+        display(df[column].describe())
+        # print(f"Unique values count: {df[column].nunique()}")
+        # print(f"Not empty values count: {df[column].count()}")
+        print(f"Passes (NAN or Empty values): {df[column].isnull().sum()}")
+        print()
+        if show_value_counts:
+            display(pd.DataFrame(df[column].value_counts(dropna=False)))
+
+        if column_type in column_types['type1']:
+            sns.countplot(y=column, data=df)
+        elif column_type in column_types['type2']:
+            df[column].hist(bins=bins)
+        else:
+            print(f"Unknown column type {column_type} for column {column}!")
+    else:
+        print(f"Column {column} not found in DataFrame!")
+
+
+def show_box_plot(df, column, second_column='score', size_x=14, size_y=4):
+    """
+    Show boxplot
+    :param size_y: figure y size
+    :param size_x: figure x size
+    :param df: DataFrame
+    :param column: column for x data
+    :param second_column: column for y data
+    :return: void
+    """
+    fig, ax = plt.subplots(figsize=(size_x, size_y))
+    sns.boxplot(x=column, y=second_column,
+                data=df.loc[df.loc[:, column].isin(df.loc[:, column].value_counts().index[:])],
+                ax=ax)
+    plt.xticks(rotation=45)
+    ax.set_title('Boxplot for ' + column)
+    plt.show()
+
+
+def show_iqr_histogram(df, column):
+    """
+    Show outliers
+    :param df: DataFrame
+    :param column: column from DataFrame
+    :return:
+    """
+    median = df[column].median()
+    iqr = df[column].quantile(0.75) - df[column].quantile(0.25)
+    perc25 = df[column].quantile(0.25)
+    perc75 = df[column].quantile(0.75)
+    print('25 percentile: {},'.format(perc25), '75 percentile: {},'.format(perc75)
+          , "IQR: {}, ".format(iqr), "Outliers bound: [{f}, {l}].".format(f=perc25 - 1.5 * iqr, l=perc75 + 1.5 * iqr))
+    df[column].loc[df[column].between(perc25 - 1.5 * iqr, perc75 + 1.5 * iqr)].hist(bins=10, range=(0, 20),
+                                                                                      label='IQR')
+    plt.legend()
+
+
+def get_stat_dif(df, column):
+    # cols = df.loc[:, column].value_counts().index[:]
+    cols = df.loc[:, column].value_counts().index
+    # print(cols)
+    combinations_all = list(combinations(cols, 2))
+    for comb in combinations_all:
+        if ttest_ind(df.loc[df.loc[:, column] == comb[0], 'score'],
+                     df.loc[df.loc[:, column] == comb[1], 'score']).pvalue \
+                <= 0.05/len(combinations_all):  # took into account Bonferoni amendment
+            print('Found statistical significant difference for column ', column)
+            break
+
+
+def convert_to_value(value):
+    if pd.isnull(value):
+        return value
+    if value == 'LE3':
+        return 1
+    if value == 'GT3':
+        return 2
+    if value == 'T':
+        return 1
+    if value == 'A':
+        return 2
+    if value == 'yes':
+        return 1
+    if value == 'no':
+        return 0
+    if value == 'M':
+        return 1
+    if value == 'F':
+        return 0
+
+
+address_values = ['U', 'R']
+
+
+def fill_address(address, traveltime):
+    return_value = ''
+    if address not in address_values:
+        # print('NAN')
+        traveltime_num = float(traveltime)
+        if traveltime_num <= 2:
+            # print('RU')
+            return_value = 'U'
+        elif traveltime_num > 2:
+            # print('RR')
+            return_value = 'R'
+        else:
+            return_value = 'U'
+    else:
+        return_value = address
+    return return_value
+
+
+
+
